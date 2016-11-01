@@ -136,6 +136,10 @@ AddParam
 Param.h.v.=00040015
 AddParam
 
+Param.h.v.=40000001
+Param.val=0.20000000000000001110
+AddParam
+
 Request.h.v=00000001
 Request.type=100
 Request.group.v=00000001

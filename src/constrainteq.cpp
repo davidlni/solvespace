@@ -201,8 +201,18 @@ void ConstraintBase::AddEq(IdList<Equation,hEquation> *l, Expr *expr, int index)
     l->Add(&eq);
 }
 
+void ConstraintBase::AddEq(IdList<Equation,hEquation> *l, const ExprVector &v,
+                           int baseIndex) const {
+    AddEq(l, v.x, baseIndex);
+    AddEq(l, v.y, baseIndex + 1);
+    if(workplane.v == EntityBase::FREE_IN_3D.v) {
+        AddEq(l, v.z, baseIndex + 2);
+    }
+}
+
 void ConstraintBase::Generate(IdList<Param,hParam> *l) const {
     switch(type) {
+        case Type::PARALLEL:
         case Type::PT_ON_LINE: {
             Param p = {};
             p.h = h.param(0);
@@ -406,9 +416,7 @@ void ConstraintBase::GenerateEquations(IdList<Equation,hEquation> *l,
             ExprVector ptOnLine = ea.Plus(eb.Minus(ea).ScaledBy(Expr::From(h.param(0))));
             ExprVector eq = ptOnLine.Minus(ep);
 
-            AddEq(l, eq.x, 0);
-            AddEq(l, eq.y, 1);
-            if(workplane.v == EntityBase::FREE_IN_3D.v) AddEq(l, eq.z, 2);
+            AddEq(l, eq);
             return;
         }
 
@@ -758,17 +766,11 @@ void ConstraintBase::GenerateEquations(IdList<Equation,hEquation> *l,
             if(eb->group.v != group.v) {
                 swap(ea, eb);
             }
-            ExprVector a = ea->VectorGetExprs();
-            ExprVector b = eb->VectorGetExprs();
+            ExprVector a = ea->VectorGetExprsInWorkplane(workplane);
+            ExprVector b = eb->VectorGetExprsInWorkplane(workplane);
 
-            if(workplane.v == EntityBase::FREE_IN_3D.v) {
-                AddEq(l, VectorsParallel(0, a, b), 0);
-                AddEq(l, VectorsParallel(1, a, b), 1);
-            } else {
-                EntityBase *w = SK.GetEntity(workplane);
-                ExprVector wn = w->Normal()->NormalExprsN();
-                AddEq(l, (a.Cross(b)).Dot(wn), 0);
-            }
+            ExprVector eq = a.Minus(b.ScaledBy(Expr::From(h.param(0))));
+            AddEq(l, eq);
             return;
         }
 

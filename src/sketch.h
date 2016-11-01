@@ -409,6 +409,7 @@ public:
 
     bool HasVector() const;
     ExprVector VectorGetExprs() const;
+    ExprVector VectorGetExprsInWorkplane(hEntity wrkpl) const;
     Vector VectorGetNum() const;
     Vector VectorGetRefPoint() const;
     Vector VectorGetStartPoint() const;
@@ -646,6 +647,7 @@ public:
     // Some helpers when generating symbolic constraint equations
     void ModifyToSatisfy();
     void AddEq(IdList<Equation,hEquation> *l, Expr *expr, int index) const;
+    void AddEq(IdList<Equation,hEquation> *l, const ExprVector &v, int baseIndex = 0) const;
     static Expr *DirectionCosine(hEntity wrkpl, ExprVector ae, ExprVector be);
     static Expr *Distance(hEntity workplane, hEntity pa, hEntity pb);
     static Expr *PointLineDistance(hEntity workplane, hEntity pt, hEntity ln);
